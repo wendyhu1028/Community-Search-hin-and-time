@@ -250,7 +250,7 @@ public class Person {
         public void endElement(String namespaceURI, String localName,
                 String rawName) throws SAXException {
             if (rawName.equals("inproceedings") || rawName.equals("article") || rawName.equals("proceedings") || rawName.equals("book")) {
-                Publication p = Publication.create(key, year, authors,"NONE");
+                Publication p = Publication.create(key, year, authors,"NONE", "NONE");
                 publlist.add(p);
             }
             if(rawName.equals("author"))

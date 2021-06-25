@@ -13,20 +13,22 @@ public class Publication {
 	private static Map<String, Publication> publicationMap = new HashMap<String, Publication>();
 
 	private int vertex_id;
-	private String year, title;
+	private String year, title, venue;
     private HashSet<String> authors, terms;
     private Map<String, Integer> edgeMap = new HashMap<String, Integer>();
     
-    private Publication(String key, String year, HashSet<String> authors, String title, int vertex_id) {
+    private Publication(String key, String year, HashSet<String> authors, String title, String venue, int vertex_id) {
         this.year = year;
         this.authors = authors; //pid
         this.title = title.substring(0, title.length()-1);
+        this.venue = venue;
         this.vertex_id = vertex_id;
         this.terms = new HashSet<String>();
         publicationMap.put(key, this);
         
         //add authors neighbor
         for(String author: authors) {
+        	Person.searchPerson(author).addPubliction(key); //add p2a
         	int edge_id = Processor.getNewEdgeId();
         	edgeMap.put(author, edge_id);
         	Processor.setEdgeType(edge_id, Config.P2A);
@@ -37,21 +39,27 @@ public class Publication {
         	String t_lower = t.toLowerCase();
         	Term term = Term.create(t_lower);
         	if(term != null) {
-        		term.addPublication(key);
+        		term.addPublication(key); //add p2t
         		terms.add(t_lower);
         		int edge_id = Processor.getNewEdgeId();
             	edgeMap.put(t_lower, edge_id);
             	Processor.setEdgeType(edge_id, Config.P2T);
         	}
         }
+        
+        //add venue neighbor
+        Venue.searchVenue(venue).addPubliction(key); // add p2v
+        int edge_id = Processor.getNewEdgeId();
+    	edgeMap.put(venue, edge_id);
+    	Processor.setEdgeType(edge_id, Config.P2V);
     }
      
     
-    static public Publication create(String key, String year, HashSet<String> authors, String title) {
+    static public Publication create(String key, String year, HashSet<String> authors, String title, String venue) {
         Publication p;
         p = searchPublication(key);
         if (p == null) {
-            p = new Publication(key, year, authors, title, Processor.getNewVertexId());
+            p = new Publication(key, year, authors, title, venue, Processor.getNewVertexId());
         }
         return p;
     }
@@ -69,14 +77,14 @@ public class Publication {
     }
     
     public String toString() {
-        return "ID: " + vertex_id + ", Year: " + year + ", Authors: " + authors +  ", Title: " + title + ", Terms: " + terms;
+        return "ID: " + vertex_id + ", Venue: " + venue + ", Year: " + year + ", Authors: " + authors +  ", Title: " + title + ", Terms: " + terms;
     }
     
     /*
-     * output: paper_id author1_id egde1_id author2_id egde2_id ...
+     * output: paper_id venue_id edge_id author1_id egde1_id author2_id egde2_id ...
      */
     public String getGraphLine() {
-    	String graph = "" + vertex_id;
+    	String graph = vertex_id + " " +Venue.searchVenue(venue).getVertexId() + " " + edgeMap.get(venue);
     	for(String author: authors) {
     		graph += " " + Person.searchPerson(author).getVertexId() + " " + edgeMap.get(author);
         }
@@ -102,7 +110,7 @@ public class Publication {
     	authors.add("n/MEJNewman");
     	authors.add("n/author");
     	
-    	Publication pub = Publication.create("key01", "1990", authors, "title 01");
+    	Publication pub = Publication.create("key01", "1990", authors, "title 01", "venue");
     	System.out.println(p1);
     	System.out.println(p2);
     	System.out.println(pub);

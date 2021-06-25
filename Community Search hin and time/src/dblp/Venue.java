@@ -2,8 +2,11 @@ package dblp;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -14,8 +17,31 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class Venue {
-	private static HashMap<String, String> edgeMap = new HashMap<String, String>();
+public class Venue {	
+	private static HashMap<String, Venue> venueMap = new HashMap<String, Venue>();
+	private static String current_venue;
+	
+	private int vertex_id;
+    private String name;
+    private HashSet<String> publication_list;
+	private Map<String, Integer> edgeMap;
+	
+	/*
+     * Create a new Venue object.
+     */
+    public Venue(String name, List<String> volume_urls) {
+        this.name = name;
+        this.vertex_id = Processor.getNewVertexId();
+        this.publication_list = new HashSet<String>();
+        this.edgeMap = new HashMap<String, Integer>();
+        current_venue = name;
+        venueMap.put(name, this);
+        
+        for(String url: volume_urls) {
+			//System.out.println(url);
+			loadVolume(url);
+		}
+    }
 	
 	public void loadVolume(String url) {
         try {
@@ -29,9 +55,43 @@ public class Venue {
             return;
         }
 	}
+	
+	static public Venue searchVenue(String name) {
+        return venueMap.get(name);
+    }
+	
+	public int getVertexId() {
+    	return vertex_id;
+    }
+	
+	public void addPubliction(String publication) {
+    	publication_list.add(publication);
+    	int edge_id = Processor.getNewEdgeId();
+    	edgeMap.put(publication, edge_id);
+    	Processor.setEdgeType(edge_id, Config.V2P);
+    }
+	
+	static public Collection<Venue> getAllVenues() {
+        return venueMap.values();
+    }
+	
+	public String toString() {
+        return "ID: " + vertex_id + ", name: " + name + ", publication: " + publication_list;
+    }
+
+    /*
+     * output: person_id paper1_id edge1_id paper2_id edge2_id ... 
+     */
+    public String getGraphLine() {
+    	String graph = "" + vertex_id;
+    	for(String publication: publication_list) {
+    		graph += " " + Publication.searchPublication(publication).getVertexId() + " " + edgeMap.get(publication);
+        }
+        return graph;
+    }
         
 	/*
-     * Publiction information is loaded on demand only
+     * Publication information is loaded on demand only
      */    	
 	static private SAXParser confParser;
     static private ConfConfigHandler confHandler;
@@ -76,9 +136,7 @@ public class Venue {
                 String rawName) throws SAXException {
             switch(rawName) {
 	        	case "hit" :
-	        		Publication.create(key, year, authors, title);
-	            	for(String author: authors)
-	            		Person.searchPerson(author).addPubliction(key);
+	        		Publication.create(key, year, authors, title, current_venue);
 		    		break;
 	        	case "author" :
 	        		if(authors!= null) {
