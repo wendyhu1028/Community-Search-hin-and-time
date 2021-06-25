@@ -28,7 +28,7 @@ public class Person {
 	private int vertex_id;
     private String name, pid;
     private HashSet<String> publication_list;
-    private Map<String, Integer> edgeMap = new HashMap<String, Integer>();
+    private Map<String, Integer> edgeMap;
 
     /*
      * Create a new Person object.
@@ -38,6 +38,7 @@ public class Person {
         this.pid = pid;
         this.vertex_id = vertex_id;
         this.publication_list = new HashSet<String>();
+        this.edgeMap = new HashMap<String, Integer>();
         personMap.put(pid, this);
     }
     
@@ -76,11 +77,11 @@ public class Person {
         return "ID: " + vertex_id + ", name: " + name + ", pid: " + pid + ", publication: " + publication_list;
     }
     
-    public void addPubliction(String publiction) {
-    	publication_list.add(publiction);
+    public void addPubliction(String publication) {
+    	publication_list.add(publication);
     	int edge_id = Processor.getNewEdgeId();
-    	edgeMap.put(publiction, edge_id);
-    	Processor.setEdgeType(edge_id, Processor.A2P);
+    	edgeMap.put(publication, edge_id);
+    	Processor.setEdgeType(edge_id, Config.A2P);
     }
     
     /*

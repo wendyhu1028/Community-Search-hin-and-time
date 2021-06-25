@@ -14,20 +14,35 @@ public class Publication {
 
 	private int vertex_id;
 	private String year, title;
-    private HashSet<String> authors;
+    private HashSet<String> authors, terms;
     private Map<String, Integer> edgeMap = new HashMap<String, Integer>();
     
     private Publication(String key, String year, HashSet<String> authors, String title, int vertex_id) {
         this.year = year;
         this.authors = authors; //pid
-        this.title = title;
+        this.title = title.substring(0, title.length()-1);
         this.vertex_id = vertex_id;
+        this.terms = new HashSet<String>();
         publicationMap.put(key, this);
         
+        //add authors neighbor
         for(String author: authors) {
         	int edge_id = Processor.getNewEdgeId();
         	edgeMap.put(author, edge_id);
-        	Processor.setEdgeType(edge_id, Processor.P2A);
+        	Processor.setEdgeType(edge_id, Config.P2A);
+        }
+        
+        //add terms neighbor
+        for(String t: this.title.split(" ")) {
+        	String t_lower = t.toLowerCase();
+        	Term term = Term.create(t_lower);
+        	if(term != null) {
+        		term.addPublication(key);
+        		terms.add(t_lower);
+        		int edge_id = Processor.getNewEdgeId();
+            	edgeMap.put(t_lower, edge_id);
+            	Processor.setEdgeType(edge_id, Config.P2T);
+        	}
         }
     }
      
@@ -54,7 +69,7 @@ public class Publication {
     }
     
     public String toString() {
-        return "ID: " + vertex_id + ", Year: " + year + ", Authors: " + authors +  ", Title: " + title;
+        return "ID: " + vertex_id + ", Year: " + year + ", Authors: " + authors +  ", Title: " + title + ", Terms: " + terms;
     }
     
     /*
@@ -64,6 +79,9 @@ public class Publication {
     	String graph = "" + vertex_id;
     	for(String author: authors) {
     		graph += " " + Person.searchPerson(author).getVertexId() + " " + edgeMap.get(author);
+        }
+    	for(String term: terms) {
+    		graph += " " + Term.searchTerm(term).getVertexId() + " " + edgeMap.get(term);
         }
         return graph;
     }
