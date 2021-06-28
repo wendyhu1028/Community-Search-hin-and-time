@@ -36,13 +36,13 @@ public class Publication {
         
         //add terms neighbor
         for(String t: this.title.split(" ")) {
-        	String t_lower = t.toLowerCase();
-        	Term term = Term.create(t_lower);
-        	if(term != null) {
+        	String t_processed = processTerm(t);
+        	Term term = Term.create(t_processed);
+        	if(term != null && !edgeMap.containsKey(t_processed)) {
         		term.addPublication(key); //add p2t
-        		terms.add(t_lower);
+        		terms.add(t_processed);
         		int edge_id = Processor.getNewEdgeId();
-            	edgeMap.put(t_lower, edge_id);
+            	edgeMap.put(t_processed, edge_id);
             	Processor.setEdgeType(edge_id, Config.P2T);
         	}
         }
@@ -54,7 +54,6 @@ public class Publication {
     	Processor.setEdgeType(edge_id, Config.P2V);
     }
      
-    
     static public Publication create(String key, String year, HashSet<String> authors, String title, String venue) {
         Publication p;
         p = searchPublication(key);
@@ -102,7 +101,20 @@ public class Publication {
         return year;
     }
     
+    private String processTerm(String term) {
+    	String processed_term = term.toLowerCase();
+    	if(processed_term.startsWith("\"")||processed_term.startsWith("("))
+    		processed_term = processed_term.substring(1);
+    	if(processed_term.endsWith(".")||processed_term.endsWith(",")||processed_term.endsWith("\"")||processed_term.endsWith(")")
+    			||processed_term.endsWith("!")||processed_term.endsWith("?"))
+    		processed_term = processed_term.substring(0, processed_term.length()-1);
+    	if(processed_term.endsWith("'s"))
+    		processed_term = processed_term.substring(0, processed_term.length()-2);
+    	return processed_term;
+    }
+    
     public static void main(String[] args) {
+    	System.out.println("a.\"".endsWith("\""));
     	Person p1 = Person.create("Mark E. J. Newman", "n/MEJNewman");
     	Person p2 = Person.create("author2", "n/author");
     	
