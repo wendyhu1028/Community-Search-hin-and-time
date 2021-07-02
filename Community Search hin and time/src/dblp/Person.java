@@ -28,17 +28,15 @@ public class Person {
 	private int vertex_id;
     private String name, pid;
     private HashSet<String> publication_list;
-    private Map<String, Integer> edgeMap;
 
     /*
      * Create a new Person object.
      */
-    private Person(String name, String pid, int vertex_id) {
+    private Person(String name, String pid) {
         this.name = name;
         this.pid = pid;
-        this.vertex_id = vertex_id;
+        this.vertex_id = Integer.MIN_VALUE;
         this.publication_list = new HashSet<String>();
-        this.edgeMap = new HashMap<String, Integer>();
         personMap.put(pid, this);
     }
     
@@ -49,7 +47,7 @@ public class Person {
         Person p;
         p = searchPerson(pid);
         if (p == null) {
-            p = new Person(name, pid,Processor.getNewVertexId());
+            p = new Person(name, pid);
         }
         return p;
     }
@@ -65,32 +63,44 @@ public class Person {
         return personMap.values();
     }
     
+    public void deletePerson() {
+    	//remove this author from publication
+    	for(String p: publication_list)
+    		Publication.searchPublication(p).removeAuthor(pid);
+    	personMap.put(pid, null);
+    }
+    
     public String getName() {
         return name;
     }
     
     public int getVertexId() {
+    	if(this.vertex_id == Integer.MIN_VALUE)
+			this.vertex_id = Processor.getNewVertexId();
     	return vertex_id;
     }
     
     public String toString() {
-        return "ID: " + vertex_id + ", name: " + name + ", pid: " + pid + ", publication: " + publication_list;
+        return "ID: " + getVertexId() + ", name: " + name + ", pid: " + pid + ", publication: " + publication_list;
     }
     
     public void addPubliction(String publication) {
     	publication_list.add(publication);
-    	int edge_id = Processor.getNewEdgeId();
-    	edgeMap.put(publication, edge_id);
-    	Processor.setEdgeType(edge_id, Config.A2P);
+    }
+    
+    public void removePublication(String publication) {
+		publication_list.remove(publication);
     }
     
     /*
      * output: person_id paper1_id edge1_id paper2_id edge2_id ... 
      */
     public String getGraphLine() {
-    	String graph = "" + vertex_id;
+    	String graph = "" + getVertexId();
     	for(String publication: publication_list) {
-    		graph += " " + Publication.searchPublication(publication).getVertexId() + " " + edgeMap.get(publication);
+        	int edge_id = Processor.getNewEdgeId();
+        	Processor.setEdgeType(edge_id, Config.A2P);
+    		graph += " " + Publication.searchPublication(publication).getVertexId() + " " + edge_id;
         }
         return graph;
     }

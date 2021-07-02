@@ -17,13 +17,11 @@ public class Term {
 	private int vertex_id;
 	private String term;
 	private HashSet<String> publication_list;
-	private Map<String, Integer> edgeMap;
 	
-	private Term(String term, int vertex_id) {
+	private Term(String term) {
         this.term = term;
-        this.vertex_id = vertex_id;
+        this.vertex_id = Integer.MIN_VALUE;
         this.publication_list = new HashSet<String>();
-        this.edgeMap = new HashMap<String, Integer>();
         termMap.put(term, this);
     }
 	
@@ -35,7 +33,7 @@ public class Term {
 		Term t;
         t = searchTerm(term);
         if (t == null) {
-            t = new Term(term, Processor.getNewVertexId());
+            t = new Term(term);
         }
         return t;
     }
@@ -45,27 +43,41 @@ public class Term {
     }
 	
 	public int getVertexId() {
+		if(this.vertex_id == Integer.MIN_VALUE)
+			this.vertex_id = Processor.getNewVertexId();
     	return vertex_id;
     }
 	
 	public void addPublication(String publication) {
 		publication_list.add(publication);
-    	int edge_id = Processor.getNewEdgeId();
-    	edgeMap.put(publication, edge_id);
-    	Processor.setEdgeType(edge_id, Config.T2P);
 	}
 	
+	public void removePublication(String publication) {
+		publication_list.remove(publication);
+		if(publication_list.isEmpty())
+    		deleteTerm();
+    }
+	
+	public void deleteTerm() {
+		//remove this author from publication
+    	for(String p: publication_list)
+    		Publication.searchPublication(p).removeTerm(term);
+    	termMap.put(term, null);
+    }
+	
 	public String toString() {
-        return "ID: " + vertex_id + ", Term: " + term + ", publication: " + publication_list;
+        return "ID: " + getVertexId() + ", Term: " + term + ", publication: " + publication_list;
     }
     
     /*
      * output: term_id paper1_id edge1_id paper2_id edge2_id ... 
      */
     public String getGraphLine() {
-    	String graph = "" + vertex_id;
+    	String graph = "" + getVertexId();
     	for(String publication: publication_list) {
-    		graph += " " + Publication.searchPublication(publication).getVertexId() + " " + edgeMap.get(publication);
+    		int edge_id = Processor.getNewEdgeId();
+        	Processor.setEdgeType(edge_id, Config.T2P);
+    		graph += " " + Publication.searchPublication(publication).getVertexId() + " " + edge_id;
         }
         return graph;
     }

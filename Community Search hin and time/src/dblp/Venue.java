@@ -24,16 +24,14 @@ public class Venue {
 	private int vertex_id;
     private String name;
     private HashSet<String> publication_list;
-	private Map<String, Integer> edgeMap;
 	
 	/*
      * Create a new Venue object.
      */
     public Venue(String name, List<String> volume_urls) {
         this.name = name;
-        this.vertex_id = Processor.getNewVertexId();
+        this.vertex_id = Integer.MIN_VALUE;
         this.publication_list = new HashSet<String>();
-        this.edgeMap = new HashMap<String, Integer>();
         current_venue = name;
         venueMap.put(name, this);
         
@@ -61,14 +59,17 @@ public class Venue {
     }
 	
 	public int getVertexId() {
+		if(this.vertex_id == Integer.MIN_VALUE)
+			this.vertex_id = Processor.getNewVertexId();
     	return vertex_id;
     }
 	
 	public void addPubliction(String publication) {
     	publication_list.add(publication);
-    	int edge_id = Processor.getNewEdgeId();
-    	edgeMap.put(publication, edge_id);
-    	Processor.setEdgeType(edge_id, Config.V2P);
+    }
+	
+	public void removePublication(String publication) {
+		publication_list.remove(publication);
     }
 	
 	static public Collection<Venue> getAllVenues() {
@@ -76,16 +77,18 @@ public class Venue {
     }
 	
 	public String toString() {
-        return "ID: " + vertex_id + ", name: " + name + ", publication: " + publication_list;
+        return "ID: " + getVertexId() + ", name: " + name + ", publication: " + publication_list;
     }
 
     /*
      * output: person_id paper1_id edge1_id paper2_id edge2_id ... 
      */
     public String getGraphLine() {
-    	String graph = "" + vertex_id;
+    	String graph = "" + getVertexId();
     	for(String publication: publication_list) {
-    		graph += " " + Publication.searchPublication(publication).getVertexId() + " " + edgeMap.get(publication);
+        	int edge_id = Processor.getNewEdgeId();
+        	Processor.setEdgeType(edge_id, Config.V2P);
+    		graph += " " + Publication.searchPublication(publication).getVertexId() + " " + edge_id;
         }
         return graph;
     }

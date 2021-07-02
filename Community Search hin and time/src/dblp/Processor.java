@@ -87,24 +87,37 @@ public class Processor {
 			Venue v = new Venue(entry.getKey(), entry.getValue());
 		}
 		
+		/*modify graph*/
+		//delete author only published one paper
+		for(Person p: Person.getAllPersons()) {
+        	if(p.getAddedPublicationList().size()<2)
+        		p.deletePerson();
+        }
+		
 		/* Graph.txt*/
 		//output stream
 		BufferedWriter graph = new BufferedWriter(new FileWriter(file_name + "\\Graph.txt", true));
 		BufferedWriter info = new BufferedWriter(new FileWriter(file_name + "\\Info.txt", true));
 		// person_id paper1_id edge1_id paper2_id edge2_id ... 
         for(Person person: Person.getAllPersons()) {
+        	if(person == null)
+        		continue;
         	info.write(person + "\n");
         	graph.write(person.getGraphLine() + "\n");
         }
         
         // paper_id venue_id edge_id author1_id egde1_id author2_id egde2_id ... term1_id edge1_id term2_id edge2_id
         for(Publication publication: Publication.getAllPublications()) {
+        	if(publication == null)
+        		continue;
         	info.write(publication + "\n");
         	graph.write(publication.getGraphLine() + "\n");
         }
         
         // term_id paper1_id edge1_id paper2_id edge2_id ... 
         for(Term term: Term.getAllTerms()) {
+        	if(term == null)
+        		continue;
         	info.write(term + "\n");
         	graph.write(term.getGraphLine() + "\n");
         }
@@ -126,12 +139,18 @@ public class Processor {
       	BufferedWriter vertex = new BufferedWriter(new FileWriter(file_name + "\\Vertex.txt", true));
         // vertex_id vertex_type(person-0; paper-1)
         for(Person person: Person.getAllPersons()) {
+        	if(person == null)
+        		continue;
         	vertex.write(person.getVertexId() + " " + Config.AUTHOR + "\n");
         }
         for(Publication publication: Publication.getAllPublications()) {
+        	if(publication == null)
+        		continue;
         	vertex.write(publication.getVertexId() + " " + Config.PAPER + "\n");
         }
         for(Term term: Term.getAllTerms()) {
+        	if(term == null)
+        		continue;
         	vertex.write(term.getVertexId() + " " + Config.TERM + "\n");
         }
         for(Venue venue: Venue.getAllVenues()) {
@@ -154,16 +173,16 @@ public class Processor {
 	private static HashMap<String, ArrayList<String>> produce_venue_urls() {
 		HashMap<String, ArrayList<String>> venue2urls = new HashMap<String, ArrayList<String>>();
 		
-		/* Database 2010~2020*/
+		/* Database 2015~2016*/
 //		//vldb
 		ArrayList<String> urls = new ArrayList<String>();
-		for(int i = 3; i < 15; i++) {
+		for(int i = 8; i < 11; i++) {
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pvldb/pvldb" + i + ".bht%3A&h=1000&format=xml");
 		}
 		venue2urls.put("VLDB", urls);
 		//icde
 		urls = new ArrayList<String>();
-		for(int i = 2010; i < 2021; i++) {
+		for(int i = 2015; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/icde/icde2015.bht%3A&h=1000&format=xml
 			//	        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/icde/icde
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/series/sci/sci447.bht%3A&h=1000&format=xml			
@@ -172,7 +191,7 @@ public class Processor {
 		venue2urls.put("ICDE", urls);
 		//sigmod
 		urls = new ArrayList<String>();
-		for(int i = 2010; i < 2021; i++) {
+		for(int i = 2015; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/sigmod/sigmod2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/sigmod/sigmod" + i + ".bht%3A&h=1000&format=xml");
 		}
@@ -181,21 +200,21 @@ public class Processor {
 		//AI
 		//t-pami
 		urls = new ArrayList<String>();
-		for(int i = 32; i < 43; i++) {
+		for(int i = 37; i < 39; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pami/pami37.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pami/pami" + i + ".bht%3A&h=1000&format=xml");
 		}
 		venue2urls.put("PAMI", urls);
 		//AAAI
 		urls = new ArrayList<String>();
-		for(int i = 2010; i < 2021; i++) {
+		for(int i = 2015; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/aaai/aaai2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/aaai/aaai" + i + ".bht%3A&h=1000&format=xml");
 		}
 		venue2urls.put("AAAI", urls);
 		//ijcai
 		urls = new ArrayList<String>();
-		for(int i = 2010; i < 2021; i++) {
+		for(int i = 2015; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/ijcai/ijcai2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/ijcai/ijcai" + i + ".bht%3A&h=1000&format=xml");
 		}
@@ -204,14 +223,14 @@ public class Processor {
 		//computer vision
 		//cvpr
 		urls = new ArrayList<String>();
-		for(int i = 2010; i < 2021; i++) {
+		for(int i = 2015; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/cvpr/cvpr2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/cvpr/cvpr" + i + ".bht%3A&h=1000&format=xml");
 		}
 		venue2urls.put("CVPR", urls);
 		//iccv
 		urls = new ArrayList<String>();
-		for(int i = 2010; i < 2021; i++) {
+		for(int i = 2015; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/iccv/iccv2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/iccv/iccv" + i + ".bht%3A&h=1000&format=xml");
 		}
