@@ -1,4 +1,5 @@
-package dblp;
+package util;
+
 
 /*
  * Created on 2021.06.25 by Wenyi Hu
@@ -23,5 +24,12 @@ public class Config {
 	//file path
 	public static String stopFile = "E:\\data\\stoplist.txt";
 	public static String outputPath = "E:\\data\\dblp\\vldb";
+	
+	//DBLP
+	public static String dblpRoot = outputPath + "\\";
+	public static String dblpGraph = dblpRoot + "Graph.txt";
+	public static String dblpVertex = dblpRoot + "Vertex.txt";
+	public static String dblpEdge = dblpRoot + "Edge.txt";
+	public static String dblpCommunity = dblpRoot + "Community.txt";
 
 }

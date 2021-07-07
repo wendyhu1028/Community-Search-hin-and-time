@@ -17,6 +17,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import util.Config;
+
 public class Venue {	
 	private static HashMap<String, Venue> venueMap = new HashMap<String, Venue>();
 	private static String current_venue;
@@ -77,7 +79,7 @@ public class Venue {
     }
 	
 	public String toString() {
-        return "ID: " + getVertexId() + ", name: " + name + ", publication: " + publication_list;
+        return "ID:" + getVertexId() + ";Type:Venue;Key:" + name + ";Publications:" + publication_list;
     }
 
     /*

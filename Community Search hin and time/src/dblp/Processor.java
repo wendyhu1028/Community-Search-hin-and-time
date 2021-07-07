@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import util.Config;
+
 /*
  * Created on 2021.06.24 by Wenyi Hu
  */
@@ -98,12 +100,14 @@ public class Processor {
 		//output stream
 		BufferedWriter graph = new BufferedWriter(new FileWriter(file_name + "\\Graph.txt", true));
 		BufferedWriter info = new BufferedWriter(new FileWriter(file_name + "\\Info.txt", true));
+		BufferedWriter community = new BufferedWriter(new FileWriter(file_name + "\\Community.txt", true));
 		// person_id paper1_id edge1_id paper2_id edge2_id ... 
         for(Person person: Person.getAllPersons()) {
         	if(person == null)
         		continue;
         	info.write(person + "\n");
         	graph.write(person.getGraphLine() + "\n");
+        	community.write(person.getCommunityInfo() + "\n");
         }
         
         // paper_id venue_id edge_id author1_id egde1_id author2_id egde2_id ... term1_id edge1_id term2_id edge2_id
@@ -133,6 +137,8 @@ public class Processor {
         graph.close();
         info.flush();
         info.close();
+        community.flush();
+        community.close();
         
         /* Vertex.txt*/
         //output stream

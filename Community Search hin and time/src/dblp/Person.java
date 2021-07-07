@@ -18,6 +18,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import util.Config;
+
 /*
  * Created on 2021.06.24 by Wenyi Hu
  */
@@ -28,6 +30,7 @@ public class Person {
 	private int vertex_id;
     private String name, pid;
     private HashSet<String> publication_list;
+    private HashSet<String> venue_list;
 
     /*
      * Create a new Person object.
@@ -37,6 +40,7 @@ public class Person {
         this.pid = pid;
         this.vertex_id = Integer.MIN_VALUE;
         this.publication_list = new HashSet<String>();
+        this.venue_list = new HashSet<String>();
         personMap.put(pid, this);
     }
     
@@ -81,15 +85,25 @@ public class Person {
     }
     
     public String toString() {
-        return "ID: " + getVertexId() + ", name: " + name + ", pid: " + pid + ", publication: " + publication_list;
+        return "ID:" + getVertexId() + ";Type:Author;Key:" + pid + ";Name:" + name + ";Venues:" + venue_list + ";Publications:" + publication_list;
     }
     
     public void addPubliction(String publication) {
     	publication_list.add(publication);
+    	venue_list.add(Publication.searchPublication(publication).getVenue());
     }
     
     public void removePublication(String publication) {
 		publication_list.remove(publication);
+    }
+    
+    
+    public String getCommunityInfo() {
+    	String community_info = "" + getVertexId();
+    	for(String venue: venue_list) {
+        	community_info += "," + venue;
+        }
+        return community_info;
     }
     
     /*

@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import util.Config;
+
 /*
  * Created on 2021.06.24 by Wenyi Hu
  */
@@ -92,7 +94,7 @@ public class Publication {
     }
     
     public String toString() {
-        return "ID: " + getVertexId() + ", Venue: " + venue + ", Year: " + year + ", Authors: " + authors +  ", Title: " + title + ", Terms: " + terms;
+        return "ID:" + getVertexId() + ";Type:Paper;Key:"+ key +";Venue:" + venue + ";Year:" + year +  ";Title:" + title + ";Authors:" + authors + ";Terms:" + terms;
     }
     
     /*
@@ -121,6 +123,10 @@ public class Publication {
     
     public String getYear() {
         return year;
+    }
+    
+    public String getVenue() {
+        return venue;
     }
     
     private String processTerm(String term) {

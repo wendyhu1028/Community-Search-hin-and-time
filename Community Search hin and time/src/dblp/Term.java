@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import util.Config;
+
 public class Term {
 	private static Map<String, Term> termMap = new HashMap<String, Term>();
 	private static HashSet<String> stoplist;
@@ -66,7 +68,7 @@ public class Term {
     }
 	
 	public String toString() {
-        return "ID: " + getVertexId() + ", Term: " + term + ", publication: " + publication_list;
+        return "ID:" + getVertexId() + ";Type:Term;Key:" + term + ";Publications:" + publication_list;
     }
     
     /*
