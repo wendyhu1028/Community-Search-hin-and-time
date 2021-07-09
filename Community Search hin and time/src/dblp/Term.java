@@ -54,6 +54,10 @@ public class Term {
 		publication_list.add(publication);
 	}
 	
+	public HashSet<String> getAddedPublicationList() {
+    	return publication_list;
+    }
+	
 	public void removePublication(String publication) {
 		publication_list.remove(publication);
 		if(publication_list.isEmpty())

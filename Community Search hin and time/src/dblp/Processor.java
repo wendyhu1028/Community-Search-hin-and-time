@@ -17,7 +17,7 @@ import util.Config;
 public class Processor {
 
 	private static int vertex_id = -1, edge_id = -1;
-	private static int edgeType[] = new int[2000000];
+	private static int edgeType[] = new int[1000000];
 	
 	/*
      * Get vertex id and auto-increment
@@ -95,16 +95,30 @@ public class Processor {
         	if(p.getAddedPublicationList().size()<2)
         		p.deletePerson();
         }
+		//delete publications without authors
+		for(Publication p: Publication.getAllPublications()) {
+			if(p == null) continue;
+        	if(p.getAuthors().isEmpty())
+        		p.deletePublication();
+        }
+		//delete term only appeared in one paper
+		for(Term t: Term.getAllTerms()) {
+			if(t == null) continue;
+        	if(t.getAddedPublicationList().size()<2)
+        		t.deleteTerm();
+        	if(t.getAddedPublicationList().size()>10)
+        		System.out.println(t);
+        }
 		
 		/* Graph.txt*/
 		//output stream
-		BufferedWriter graph = new BufferedWriter(new FileWriter(file_name + "\\Graph.txt", true));
-		BufferedWriter info = new BufferedWriter(new FileWriter(file_name + "\\Info.txt", true));
-		BufferedWriter community = new BufferedWriter(new FileWriter(file_name + "\\Community.txt", true));
+		BufferedWriter graph = new BufferedWriter(new FileWriter(file_name + "\\Graph.txt"));
+		BufferedWriter info = new BufferedWriter(new FileWriter(file_name + "\\Info.txt"));
+		BufferedWriter community = new BufferedWriter(new FileWriter(file_name + "\\Community.txt"));
+		BufferedWriter published_time = new BufferedWriter(new FileWriter(file_name + "\\Time.txt"));
 		// person_id paper1_id edge1_id paper2_id edge2_id ... 
         for(Person person: Person.getAllPersons()) {
-        	if(person == null)
-        		continue;
+        	if(person == null) continue;
         	info.write(person + "\n");
         	graph.write(person.getGraphLine() + "\n");
         	community.write(person.getCommunityInfo() + "\n");
@@ -112,16 +126,15 @@ public class Processor {
         
         // paper_id venue_id edge_id author1_id egde1_id author2_id egde2_id ... term1_id edge1_id term2_id edge2_id
         for(Publication publication: Publication.getAllPublications()) {
-        	if(publication == null)
-        		continue;
+        	if(publication == null) continue;
         	info.write(publication + "\n");
         	graph.write(publication.getGraphLine() + "\n");
+        	published_time.write(publication.getVertexId() + "," + publication.getYear() + "\n");
         }
         
         // term_id paper1_id edge1_id paper2_id edge2_id ... 
         for(Term term: Term.getAllTerms()) {
-        	if(term == null)
-        		continue;
+        	if(term == null) continue;
         	info.write(term + "\n");
         	graph.write(term.getGraphLine() + "\n");
         }
@@ -133,16 +146,14 @@ public class Processor {
         }
         
         //close output stream
-        graph.flush();
-        graph.close();
-        info.flush();
-        info.close();
-        community.flush();
-        community.close();
+        graph.flush(); graph.close();
+        info.flush(); info.close();
+        community.flush(); community.close();
+        published_time.flush(); published_time.close();
         
         /* Vertex.txt*/
         //output stream
-      	BufferedWriter vertex = new BufferedWriter(new FileWriter(file_name + "\\Vertex.txt", true));
+      	BufferedWriter vertex = new BufferedWriter(new FileWriter(file_name + "\\Vertex.txt"));
         // vertex_id vertex_type(person-0; paper-1)
         for(Person person: Person.getAllPersons()) {
         	if(person == null)
@@ -167,7 +178,7 @@ public class Processor {
         
         /* Edge.txt*/
       //output stream
-      	BufferedWriter edge = new BufferedWriter(new FileWriter(file_name + "\\Edge.txt", true));
+      	BufferedWriter edge = new BufferedWriter(new FileWriter(file_name + "\\Edge.txt"));
         // dege_id edge_type
         for(int i = 0; i < edge_id+1; i++) {
         	edge.write(i + " " + edgeType[i] + "\n");
@@ -180,15 +191,15 @@ public class Processor {
 		HashMap<String, ArrayList<String>> venue2urls = new HashMap<String, ArrayList<String>>();
 		
 		/* Database 2015~2016*/
-//		//vldb
+//		//vldb 08~16
 		ArrayList<String> urls = new ArrayList<String>();
-		for(int i = 8; i < 11; i++) {
-			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pvldb/pvldb" + i + ".bht%3A&h=1000&format=xml");
-		}
-		venue2urls.put("VLDB", urls);
+//		for(int i = 1; i < 11; i++) {
+//			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pvldb/pvldb" + i + ".bht%3A&h=1000&format=xml");
+//		}
+//		venue2urls.put("VLDB", urls);
 		//icde
 		urls = new ArrayList<String>();
-		for(int i = 2015; i < 2017; i++) {
+		for(int i = 2008; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/icde/icde2015.bht%3A&h=1000&format=xml
 			//	        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/icde/icde
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/series/sci/sci447.bht%3A&h=1000&format=xml			
@@ -197,7 +208,7 @@ public class Processor {
 		venue2urls.put("ICDE", urls);
 		//sigmod
 		urls = new ArrayList<String>();
-		for(int i = 2015; i < 2017; i++) {
+		for(int i = 2008; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/sigmod/sigmod2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/sigmod/sigmod" + i + ".bht%3A&h=1000&format=xml");
 		}
@@ -205,22 +216,22 @@ public class Processor {
 		
 		//AI
 		//t-pami
-		urls = new ArrayList<String>();
-		for(int i = 37; i < 39; i++) {
-			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pami/pami37.bht%3A&h=1000&format=xml
-			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pami/pami" + i + ".bht%3A&h=1000&format=xml");
-		}
-		venue2urls.put("PAMI", urls);
+//		urls = new ArrayList<String>();
+//		for(int i = 30; i < 39; i++) {
+//			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pami/pami37.bht%3A&h=1000&format=xml
+//			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pami/pami" + i + ".bht%3A&h=1000&format=xml");
+//		}
+//		venue2urls.put("PAMI", urls);
 		//AAAI
 		urls = new ArrayList<String>();
-		for(int i = 2015; i < 2017; i++) {
+		for(int i = 2008; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/aaai/aaai2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/aaai/aaai" + i + ".bht%3A&h=1000&format=xml");
 		}
 		venue2urls.put("AAAI", urls);
 		//ijcai
 		urls = new ArrayList<String>();
-		for(int i = 2015; i < 2017; i++) {
+		for(int i = 2008; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/ijcai/ijcai2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/ijcai/ijcai" + i + ".bht%3A&h=1000&format=xml");
 		}
@@ -229,14 +240,14 @@ public class Processor {
 		//computer vision
 		//cvpr
 		urls = new ArrayList<String>();
-		for(int i = 2015; i < 2017; i++) {
+		for(int i = 2008; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/cvpr/cvpr2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/cvpr/cvpr" + i + ".bht%3A&h=1000&format=xml");
 		}
 		venue2urls.put("CVPR", urls);
 		//iccv
 		urls = new ArrayList<String>();
-		for(int i = 2015; i < 2017; i++) {
+		for(int i = 2008; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/iccv/iccv2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/iccv/iccv" + i + ".bht%3A&h=1000&format=xml");
 		}

@@ -130,29 +130,29 @@ public class GraphMaker {
 		int edgeType[] = dataReader.readEdgeType();
 		
 		GraphMaker graph_maker = new GraphMaker(graph, vertexType, edgeType);
-//		int vertex[] = {0, 1, 0}, edge[] = {3, 1};
-		int vertex[] = {0, 1, 2, 1, 0}, edge[] = {3, 6, 4, 1};
-		double threshold = 1.0;
+		int vertex[] = {0, 1, 0}, edge[] = {3, 1};
+//		int vertex[] = {0, 1, 2, 1, 0}, edge[] = {3, 6, 4, 1};
+		double threshold = 0.0;
 		int k_core = 3;
 		MetaPath meta_path = new MetaPath(vertex, edge);
 		System.out.println(meta_path.pathLen + ": " + meta_path);
 		
 		//write weighted graph
-		Map<String, Double> weighted_graph = graph_maker.makeWeightedGraph(meta_path);
-		try {
-			BufferedWriter graph_file = new BufferedWriter(new FileWriter(Config.outputPath + "\\weight_graph.txt"));
-			double average_weight = 0.0;
-			for(Map.Entry<String, Double> entry : weighted_graph.entrySet()) {
-				graph_file.write(entry.getKey() + "," + entry.getValue()+"\n");
-				average_weight += entry.getValue();
-			}
-			graph_file.write("Average weight: " + average_weight/weighted_graph.size());
-			graph_file.flush();
-			graph_file.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		Map<String, Double> weighted_graph = graph_maker.makeWeightedGraph(meta_path);
+//		try {
+//			BufferedWriter graph_file = new BufferedWriter(new FileWriter(Config.outputPath + "\\weight_graph.txt"));
+//			double average_weight = 0.0;
+//			for(Map.Entry<String, Double> entry : weighted_graph.entrySet()) {
+//				graph_file.write(entry.getKey() + "," + entry.getValue()+"\n");
+//				average_weight += entry.getValue();
+//			}
+//			graph_file.write("Average weight: " + average_weight/weighted_graph.size());
+//			graph_file.flush();
+//			graph_file.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		//make simple graph
 		Map<Integer, Set<Integer>> simple_graph = graph_maker.makeSimpleGraph(meta_path, threshold);
@@ -173,7 +173,7 @@ public class GraphMaker {
 			BufferedWriter query_result = new BufferedWriter(new FileWriter(Config.outputPath + "\\Results.txt"));
 			double average_precision = 0.0;
 			int results_count = 0;
-			Set<Integer> result = search.queryMinDistance(8184, k_core);
+//			Set<Integer> result = search.queryMinDistance(8184, k_core);
 			for(int query: simple_graph.keySet()) {
 //				Set<Integer> results = search.query(query, k_core);
 				Set<Integer> results = search.queryMinDistance(query, k_core);
