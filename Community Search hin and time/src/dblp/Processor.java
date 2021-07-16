@@ -18,6 +18,7 @@ public class Processor {
 
 	private static int vertex_id = -1, edge_id = -1;
 	private static int edgeType[] = new int[1000000];
+	public static Map<String, String> venue2area = new HashMap<String, String>();
 	
 	/*
      * Get vertex id and auto-increment
@@ -92,7 +93,7 @@ public class Processor {
 		/*modify graph*/
 		//delete author only published one paper
 		for(Person p: Person.getAllPersons()) {
-        	if(p.getAddedPublicationList().size()<2)
+        	if(p.getAddedPublicationList().size()<6 ||p.getArea().size()>1)
         		p.deletePerson();
         }
 		//delete publications without authors
@@ -104,7 +105,7 @@ public class Processor {
 		//delete term only appeared in one paper
 		for(Term t: Term.getAllTerms()) {
 			if(t == null) continue;
-        	if(t.getAddedPublicationList().size()<2)
+        	if(t.getAddedPublicationList().size()<8)
         		t.deleteTerm();
         	if(t.getAddedPublicationList().size()>10)
         		System.out.println(t);
@@ -115,6 +116,7 @@ public class Processor {
 		BufferedWriter graph = new BufferedWriter(new FileWriter(file_name + "\\Graph.txt"));
 		BufferedWriter info = new BufferedWriter(new FileWriter(file_name + "\\Info.txt"));
 		BufferedWriter community = new BufferedWriter(new FileWriter(file_name + "\\Community.txt"));
+		BufferedWriter community2 = new BufferedWriter(new FileWriter(file_name + "\\Community2.txt"));
 		BufferedWriter published_time = new BufferedWriter(new FileWriter(file_name + "\\Time.txt"));
 		// person_id paper1_id edge1_id paper2_id edge2_id ... 
         for(Person person: Person.getAllPersons()) {
@@ -122,6 +124,7 @@ public class Processor {
         	info.write(person + "\n");
         	graph.write(person.getGraphLine() + "\n");
         	community.write(person.getCommunityInfo() + "\n");
+        	community2.write(person.getCommunityInfo2() + "\n");
         }
         
         // paper_id venue_id edge_id author1_id egde1_id author2_id egde2_id ... term1_id edge1_id term2_id edge2_id
@@ -149,6 +152,7 @@ public class Processor {
         graph.flush(); graph.close();
         info.flush(); info.close();
         community.flush(); community.close();
+        community2.flush(); community2.close();
         published_time.flush(); published_time.close();
         
         /* Vertex.txt*/
@@ -191,67 +195,157 @@ public class Processor {
 		HashMap<String, ArrayList<String>> venue2urls = new HashMap<String, ArrayList<String>>();
 		
 		/* Database 2015~2016*/
-//		//vldb 08~16
+//		//vldb
 		ArrayList<String> urls = new ArrayList<String>();
-//		for(int i = 1; i < 11; i++) {
-//			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pvldb/pvldb" + i + ".bht%3A&h=1000&format=xml");
-//		}
-//		venue2urls.put("VLDB", urls);
+		for(int i = 8; i < 11; i++) { //15-16 int i = 8; i < 11     08-16 int i = 1; i < 11
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pvldb/pvldb" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("VLDB", urls);
+		venue2area.put("VLDB", "Database");
+		//tkde
+		urls = new ArrayList<String>();
+		for(int i = 27; i < 29; i++) { //15-16 int i = 27; i < 29
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/tkde/tkde" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("TKDE", urls);
+		venue2area.put("TKDE", "Database");
 		//icde
 		urls = new ArrayList<String>();
-		for(int i = 2008; i < 2017; i++) {
+		for(int i = 2015; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/icde/icde2015.bht%3A&h=1000&format=xml
 			//	        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/icde/icde
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/series/sci/sci447.bht%3A&h=1000&format=xml			
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/icde/icde" + i + ".bht%3A&h=1000&format=xml");
 		}
 		venue2urls.put("ICDE", urls);
+		venue2area.put("ICDE", "Database");
 		//sigmod
 		urls = new ArrayList<String>();
-		for(int i = 2008; i < 2017; i++) {
+		for(int i = 2015; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/sigmod/sigmod2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/sigmod/sigmod" + i + ".bht%3A&h=1000&format=xml");
 		}
 		venue2urls.put("SIGMOD", urls);
+		venue2area.put("SIGMOD", "Database");
 		
-		//AI
-		//t-pami
+//		//AI
+//		//t-pami
 //		urls = new ArrayList<String>();
-//		for(int i = 30; i < 39; i++) {
+//		for(int i = 30; i < 39; i++) { //15-16 int i = 37; i < 39; i++
 //			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pami/pami37.bht%3A&h=1000&format=xml
 //			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/pami/pami" + i + ".bht%3A&h=1000&format=xml");
 //		}
 //		venue2urls.put("PAMI", urls);
-		//AAAI
-		urls = new ArrayList<String>();
-		for(int i = 2008; i < 2017; i++) {
-			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/aaai/aaai2015.bht%3A&h=1000&format=xml
-			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/aaai/aaai" + i + ".bht%3A&h=1000&format=xml");
-		}
-		venue2urls.put("AAAI", urls);
-		//ijcai
-		urls = new ArrayList<String>();
-		for(int i = 2008; i < 2017; i++) {
-			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/ijcai/ijcai2015.bht%3A&h=1000&format=xml
-			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/ijcai/ijcai" + i + ".bht%3A&h=1000&format=xml");
-		}
-		venue2urls.put("IJCAI", urls);
+//		//AAAI
+//		urls = new ArrayList<String>();
+//		for(int i = 2008; i < 2017; i++) {
+//			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/aaai/aaai2015.bht%3A&h=1000&format=xml
+//			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/aaai/aaai" + i + ".bht%3A&h=1000&format=xml");
+//		}
+//		venue2urls.put("AAAI", urls);
+//		//ijcai
+//		urls = new ArrayList<String>();
+//		for(int i = 2008; i < 2017; i++) {
+//			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/ijcai/ijcai2015.bht%3A&h=1000&format=xml
+//			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/ijcai/ijcai" + i + ".bht%3A&h=1000&format=xml");
+//		}
+//		venue2urls.put("IJCAI", urls);
 		
-		//computer vision
+		/* computer vision 2015~2016*/
+		//tip
+		urls = new ArrayList<String>();
+		for(int i = 24; i < 26; i++) { //15-16 int i = 24; i < 26
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/tip/tip" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("TIP", urls);
+		venue2area.put("TIP", "ComputerVision");
+		//tog
+		urls = new ArrayList<String>();
+		for(int i = 34; i < 36; i++) { //15-16 int i = 24; i < 26
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/tog/tog" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("TOG", urls);
+		venue2area.put("TOG", "ComputerVision");
 		//cvpr
 		urls = new ArrayList<String>();
-		for(int i = 2008; i < 2017; i++) {
+		for(int i = 2015; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/cvpr/cvpr2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/cvpr/cvpr" + i + ".bht%3A&h=1000&format=xml");
 		}
 		venue2urls.put("CVPR", urls);
+		venue2area.put("CVPR", "ComputerVision");
 		//iccv
 		urls = new ArrayList<String>();
-		for(int i = 2008; i < 2017; i++) {
+		for(int i = 2015; i < 2017; i++) {
 			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/iccv/iccv2015.bht%3A&h=1000&format=xml
 			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/iccv/iccv" + i + ".bht%3A&h=1000&format=xml");
 		}
 		venue2urls.put("ICCV", urls);
+		venue2area.put("ICCV", "ComputerVision");
+		
+		/* security 2015~2016*/
+		//tdsc
+		urls = new ArrayList<String>();
+		for(int i = 12; i < 14; i++) { //15-16 int i = 24; i < 26
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/tdsc/tdsc" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("TDSC", urls);
+		venue2area.put("TDSC", "Security");
+		//tifs
+		urls = new ArrayList<String>();
+		for(int i = 10; i < 12; i++) { //15-16 int i = 24; i < 26
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/tifs/tifs" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("TIFS", urls);
+		venue2area.put("TIFS", "Security");
+		//ccs
+		urls = new ArrayList<String>();
+		for(int i = 2015; i < 2017; i++) {
+			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/cvpr/cvpr2015.bht%3A&h=1000&format=xml
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/ccs/ccs" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("CCS", urls);
+		venue2area.put("CCS", "Security");
+		//S&P
+		urls = new ArrayList<String>();
+		for(int i = 2015; i < 2017; i++) {
+			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/iccv/iccv2015.bht%3A&h=1000&format=xml
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/sp/sp" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("S&P", urls);
+		venue2area.put("S&P", "Security");
+		
+		/* communications 2015~2016*/
+		//jsac
+		urls = new ArrayList<String>();
+		for(int i = 33; i < 35; i++) { //15-16 int i = 24; i < 26
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/jsac/jsac" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("JSAC", urls);
+		venue2area.put("JSAC", "Communications");
+		//tmc
+		urls = new ArrayList<String>();
+		for(int i = 14; i < 16; i++) { //15-16 int i = 24; i < 26
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/journals/tmc/tmc" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("TMC", urls);
+		venue2area.put("TMC", "Communications");
+		//ccs
+		urls = new ArrayList<String>();
+		for(int i = 2015; i < 2017; i++) {
+			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/cvpr/cvpr2015.bht%3A&h=1000&format=xml
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/infocom/infocom" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("INFOCOM", urls);
+		venue2area.put("INFOCOM", "Communications");
+		//S&P
+		urls = new ArrayList<String>();
+		for(int i = 2015; i < 2017; i++) {
+			//        https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/iccv/iccv2015.bht%3A&h=1000&format=xml
+			urls.add("https://dblp.uni-trier.de/search/publ/api?q=toc%3Adb/conf/mobicom/mobicom" + i + ".bht%3A&h=1000&format=xml");
+		}
+		venue2urls.put("MobiCom", urls);
+		venue2area.put("MobiCom", "Communications");
 		
 		return venue2urls;
 	}

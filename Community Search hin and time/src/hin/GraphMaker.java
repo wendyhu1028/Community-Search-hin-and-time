@@ -66,8 +66,8 @@ public class GraphMaker {
 			
 			if(node_set.size() == 1) continue;
 			int relation_count = (node_set.size()*(node_set.size() - 1))/2;
-//			double weight = 1/(double)relation_count;
-			double weight = 1;
+			double weight = 1/(double)relation_count;
+//			double weight = 1;
 //			System.out.println("weight: " + weight);
 			for(int node1: node_set) {
 				String edge_half = node1 + ",";
@@ -130,29 +130,29 @@ public class GraphMaker {
 		int edgeType[] = dataReader.readEdgeType();
 		
 		GraphMaker graph_maker = new GraphMaker(graph, vertexType, edgeType);
-		int vertex[] = {0, 1, 0}, edge[] = {3, 1};
-//		int vertex[] = {0, 1, 2, 1, 0}, edge[] = {3, 6, 4, 1};
-		double threshold = 0.0;
-		int k_core = 3;
+//		int vertex[] = {0, 1, 0}, edge[] = {3, 1};
+		int vertex[] = {0, 1, 2, 1, 0}, edge[] = {3, 6, 4, 1};
+		double threshold = 0.01;
+		int k_core = 5;
 		MetaPath meta_path = new MetaPath(vertex, edge);
 		System.out.println(meta_path.pathLen + ": " + meta_path);
 		
 		//write weighted graph
-//		Map<String, Double> weighted_graph = graph_maker.makeWeightedGraph(meta_path);
-//		try {
-//			BufferedWriter graph_file = new BufferedWriter(new FileWriter(Config.outputPath + "\\weight_graph.txt"));
-//			double average_weight = 0.0;
-//			for(Map.Entry<String, Double> entry : weighted_graph.entrySet()) {
-//				graph_file.write(entry.getKey() + "," + entry.getValue()+"\n");
-//				average_weight += entry.getValue();
-//			}
-//			graph_file.write("Average weight: " + average_weight/weighted_graph.size());
-//			graph_file.flush();
-//			graph_file.close();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		Map<String, Double> weighted_graph = graph_maker.makeWeightedGraph(meta_path);
+		try {
+			BufferedWriter graph_file = new BufferedWriter(new FileWriter(Config.outputPath + "\\weight_graph.txt"));
+			double average_weight = 0.0;
+			for(Map.Entry<String, Double> entry : weighted_graph.entrySet()) {
+				graph_file.write(entry.getKey() + "," + entry.getValue()+"\n");
+				average_weight += entry.getValue();
+			}
+			graph_file.write("Average weight: " + average_weight/weighted_graph.size());
+			graph_file.flush();
+			graph_file.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		//make simple graph
 		Map<Integer, Set<Integer>> simple_graph = graph_maker.makeSimpleGraph(meta_path, threshold);
@@ -172,6 +172,7 @@ public class GraphMaker {
 		try {
 			BufferedWriter query_result = new BufferedWriter(new FileWriter(Config.outputPath + "\\Results.txt"));
 			double average_precision = 0.0;
+			double average_size = 0.0;
 			int results_count = 0;
 //			Set<Integer> result = search.queryMinDistance(8184, k_core);
 			for(int query: simple_graph.keySet()) {
@@ -194,10 +195,12 @@ public class GraphMaker {
 					double precision = (double)correct_count/results.size();
 					query_result.write("\nCorrect count: " + correct_count + ", total size: " + results.size() + ",precision: " + precision + "\n");
 					average_precision += precision;
+					average_size += results.size();
 					results_count++;
 				}	
 			}
 			query_result.write("Average precision: " + average_precision/results_count);
+			query_result.write("\nAverage size: " + average_size/results_count);
 			query_result.flush();
 			query_result.close();
 		} catch (IOException e) {

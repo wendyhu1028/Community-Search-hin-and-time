@@ -106,6 +106,23 @@ public class Person {
         return community_info;
     }
     
+    public String getCommunityInfo2() {
+    	HashSet<String> area_list = getArea();
+    	String community_info = "" + getVertexId();
+    	for(String area: area_list) {
+        	community_info += "," + area;
+        }
+        return community_info;
+    }
+    
+    public HashSet<String> getArea() {
+    	HashSet<String> area_list = new HashSet<String>();
+    	for(String venue: venue_list) {
+    		area_list.add(Processor.venue2area.get(venue));
+        }
+        return area_list;
+    }
+    
     /*
      * output: person_id paper1_id edge1_id paper2_id edge2_id ... 
      */
